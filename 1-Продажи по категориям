@@ -1,0 +1,28 @@
+
+
+
+WITH category_sales AS (
+    SELECT
+        p.category,
+        SUM(oi.amount) AS total_sales,
+        COUNT(DISTINCT o.id) AS order_count
+    FROM
+        order_items oi
+            JOIN
+        products p ON oi.product_id = p.id
+            JOIN
+        orders o ON oi.order_id = o.id
+    GROUP BY
+        p.category
+),
+     total_sales AS (
+         SELECT SUM(total_sales) AS total FROM category_sales
+     )
+SELECT
+    cs.category,
+    cs.total_sales,
+    cs.total_sales / cs.order_count AS avg_per_order,
+    (cs.total_sales / ts.total) * 100 AS category_share
+FROM
+    category_sales cs,
+    total_sales ts;
